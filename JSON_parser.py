@@ -7,6 +7,9 @@ import sys
 
 class JSONParser():
 
+
+
+
     ##Argument length validation##
     def ArgValid(self, arglen):
         if len(arglen) != 4:
@@ -15,8 +18,12 @@ class JSONParser():
 
     ## Method for downloading PDB from database##
     def DownloadEntry(self, PDBid, PDBJson):
-        #print json.dumps(result)
-        #print result
+
+
+        #def split_list(self, a_list):
+            #half = len(a_list) / 2
+            #return a_list[:half], a_list[half:]
+
         ##Internet connection check##
         try:
             entry = urllib2.urlopen("http://webchemdev.ncbr.muni.cz/API/Validation/Protein/"+PDBid)
@@ -37,11 +44,10 @@ class JSONParser():
             sys.exit()
 
         else:
-            result = {"Protein": sys.argv[1]}
+            result = {"Entry": sys.argv[1]}
             result["Models"] = [{}]
             modelList = []
-            #print result
-            #print result["Models"][0]
+            residues = []
             PDBJson = DownloadedEntry["Models"][0]["Entries"]
             # pprint(PDBJson)
             for item, val in enumerate(PDBJson):
@@ -57,23 +63,29 @@ class JSONParser():
                 res["ChiralityMismatches"] = PDBEntry["ChiralityMismatches"]
                 res["NameMismatches"] = PDBEntry["NameMismatches"]
                 modelList.append(res)
-                #pprint(result)
-                #pprint(vysledek)
-                ForeignAtomCount = PDBEntry["ForeignAtomCount"]
-                ForeignAtoms = PDBEntry["ForeignAtoms"]
-                SubstitutionCount = PDBEntry["SubstitutionCount"]
-                Substitutions = PDBEntry["Substitutions"]
-                ChiralityMismatchCount = PDBEntry["ChiralityMismatchCount"]
-                ChiralityMismatches = PDBEntry["ChiralityMismatches"]
-                #Id=PDBEntry["Id"]
-                #print "Id", Id
-                #print "ForeignAtomCount", ForeignAtomCount
-                #print "ForeignAtoms", ForeignAtoms
-                #print "SubstitutionCount", SubstitutionCount
-                #print "Substitutions", Substitutions
-                #print "ChiralityMismatchCount", ChiralityMismatchCount
-                #print "ChiralityMismatches", ChiralityMismatches, "\n"
+                result["Models"] = modelList
+                atomID = []
+                ##Go through residues in all entries and make lists of atom IDs in each iteration
+                for atom, id in enumerate(PDBEntry["Residues"]):
+                    if len(PDBEntry["Residues"][atom]) == 7:
+                        atomID.append(str(PDBEntry["Residues"][atom][0:3]))
+                        atomID.append(int(PDBEntry["Residues"][atom][4:5]))
+                        atomID.append(str(PDBEntry["Residues"][atom][6:7]))
+                    elif len(PDBEntry["Residues"][atom]) == 8:
+                        atomID.append(str(PDBEntry["Residues"][atom][0:3]))
+                        atomID.append(int(PDBEntry["Residues"][atom][4:6]))
+                        atomID.append(str(PDBEntry["Residues"][atom][7:8]))
+                    elif len(PDBEntry["Residues"][atom]) == 9:
+                        atomID.append(str(PDBEntry["Residues"][atom][0:3]))
+                        atomID.append(int(PDBEntry["Residues"][atom][4:7]))
+                        atomID.append(str(PDBEntry["Residues"][atom][8:9]))
+                    #if len(atomID) > 3:
+                        #residues.append(split_list(self, atomID))
+                    #else:
+                    #residues.append(atomID)
+                    print atomID
+            pprint(result)
+            #pprint(residues)
 
-        pprint(modelList)
 
 

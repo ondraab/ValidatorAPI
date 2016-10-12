@@ -1,6 +1,7 @@
 import JSON_parser
 import sys
 import argparse
+import residue
 
 print "ValidatorAPI - This program validates PDBs from ValidatorDB database\n"
 
@@ -15,7 +16,12 @@ download = JSON_parser.JSONParser()
 res = dict
 check = JSON_parser.JSONParser()
 check.ArgValid(args.pdbid)
-download.DownloadEntry(args.pdbid, res)
+#download.DownloadEntry(args.pdbid)
 
+#ResParse = models.models()
+#ResParse.ModelParser()
+
+ResParse = residue.residue()
+ResParse.ResParser()
 
 

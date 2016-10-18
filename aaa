@@ -1,4 +1,11 @@
-"ModelName": "NDG",
+{
+  "Version": "1.1.16.5.18a",
+  "Errors": {},
+  "ValidationType": "Database",
+  "MotiveCount": 10,
+  "Models": [
+    {
+      "ModelName": "NDG",
       "LongName": "2-(acetylamino)-2-deoxy-a-d-glucopyranose",
       "Formula": "C{8}H{15}N{1}O{6}",
       "CoordinateSource": "CifModel",

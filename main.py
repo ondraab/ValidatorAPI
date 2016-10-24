@@ -1,4 +1,4 @@
-import JSON_parser
+import JSON_manager
 import sys
 import argparse
 import residue
@@ -12,16 +12,16 @@ args = parser.parse_args()
 #print args.pdbid
 
 
-download = JSON_parser.JSONParser()
+download = JSON_manager.JSONParser()
 res = dict
-check = JSON_parser.JSONParser()
-check.ArgValid(args.pdbid)
+#check = JSON_manager.JSONParser()
+#check.ArgValid(args.pdbid)
 #download.DownloadEntry(args.pdbid)
 
 #ResParse = models.models()
 #ResParse.ModelParser()
 
-ResParse = residue.residue()
-ResParse.ResParser()
+#ResParse = residue.RESIDUE()
+#ResParse.ResParser()
 
 

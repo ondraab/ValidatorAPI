@@ -1,58 +1,56 @@
 import json
 import urllib2
-from pprint import pprint
 import sys
+import tkMessageBox
 
 
-class JSONParser():
+class JSON_MANAGER():
+    """
+        Class gets structure from web.
+        """
 
-    ##Argument length validation##
-    ##def ArgValid(self, arglen):
-        ##if len(arglen) != 4:
-            ##print "ERROR! PDBid has got 4 characters, you type ", len(arglen)
-            ##sys.exit()
-
-
-
-    ## Method for downloading PDB from database##
-    def DownloadEntry(self, PDBid):
+    def __init__(self):
+        self.proteinModels = []
+        self.entry = {}
 
 
-        ProteinModels = []
 
 
+
+
+    def download_entry(self, PDBid):
+
+        """
+        Method checks internet connection, downloads entry from web, cheks, if there is something to validate.
+        :param PDBid: PDBid which will be downloaded
+        :return: Models of given PDBid
+        """
 
         ### Internet connection check##
         try:
-            entry = urllib2.urlopen("http://webchemdev.ncbr.muni.cz/API/Validation/Protein/"+PDBid)
+            urllib2.urlopen("https://webchemdev.ncbr.muni.cz/API/Validation/Protein/" + PDBid)
         except urllib2.URLError:
-            print "Could not load page. Check your internet connection."
+            tkMessageBox.showerror("Error", "Could not load page. Check your internet connection.")
             sys.exit()
-
-
 
 
         ##Check Error PDBs##
-        DownloadedEntry = json.load(entry)
+        self.entry = urllib2.urlopen("https://webchemdev.ncbr.muni.cz/API/Validation/Protein/" + PDBid)
+        DownloadedEntry = json.load(self.entry)
         if 'Error' in DownloadedEntry:
-            print "PDB not fount. It's not in the database."
-            sys.exit()
+            tkMessageBox.showerror("Error", DownloadedEntry["Error"])
 
 
-
-        ##Check if it not empty PDB##
+        ##Check if it is not empty PDB##
         elif DownloadedEntry["MotiveCount"] == 0:
+            tkMessageBox.showerror("Error", "Motive Count = 0! Nothing to validate. Please use another molecule.")
             print "Motive Count = 0! Nothing to validate. Please use another molecule."
             sys.exit()
-
 
 
         else:
             for item, val in enumerate(DownloadedEntry["Models"]):
                 PDBEntry = DownloadedEntry["Models"][item]
-                ProteinModels.append(PDBEntry)
+                self.proteinModels.append(PDBEntry)
 
-
-        return ProteinModels
-
-
+        return self.proteinModels

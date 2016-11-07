@@ -1,99 +1,38 @@
-#!/usr/bin/env python
-# Tkinter (Tk/Ttk) Progressbar widget example
-#
-# Written by Yu-Jie Lin
-# This code is placed in Public Domain
-#
-# Gist: https://gist.github.com/livibetter/6850443
-# Clip: https://www.youtube.com/watch?v=rKr8wjKuhBY
-#
-# References:
-#
-#   * http://docs.python.org/2/library/ttk.html#progressbar
-#   * http://docs.python.org/3/library/tkinter.ttk.html#progressbar
-#
-# Backstory:
-#
-# I wrote this script because one [1] of my videos got some hits with
-# irrelevant keywords. I understand that would be frustrating when the searcher
-# wants to find a progress bar in Tk, but gets a video hit about progress bar
-# in terminal. So I did some reading and coding to produce this code.
-#
-# [1]: https://www.youtube.com/watch?v=goeZaYERNnM
+import os
+import Tkinter as tk
+import ttk
 
 
-try:
-  import Tkinter              # Python 2
-  import ttk
-except ImportError:
-  import tkinter as Tkinter   # Python 3
-  import tkinter.ttk as ttk
+class App(tk.Frame):
 
+    def __init__(self, master, path):
 
-def main():
+        tk.Frame.__init__(self, master)
+        self.tree = ttk.Treeview(self)
+        ysb = ttk.Scrollbar(self, orient='vertical', command=self.tree.yview)
+        xsb = ttk.Scrollbar(self, orient='horizontal', command=self.tree.xview)
+        self.tree.configure(yscroll=ysb.set, xscroll=xsb.set)
+        self.tree.heading('#0', text=path, anchor='w')
 
-  root = Tkinter.Tk()
+        abspath = os.path.abspath(path)
+        root_node = self.tree.insert('', 'end', text=abspath, open=True)
+        self.process_directory(root_node, abspath)
 
-  ft = ttk.Frame()
-  fb = ttk.Frame()
+        self.tree.grid(row=0, column=0)
+        ysb.grid(row=0, column=1, sticky='ns')
+        xsb.grid(row=1, column=0, sticky='ew')
+        self.grid()
 
-  ft.pack(expand=True, fill=Tkinter.BOTH, side=Tkinter.TOP)
-  fb.pack(expand=True, fill=Tkinter.BOTH, side=Tkinter.TOP)
+    def process_directory(self, parent, path):
 
-  pb_hd = ttk.Progressbar(ft, orient='horizontal', mode='determinate')
-  pb_hD = ttk.Progressbar(ft, orient='horizontal', mode='indeterminate')
-  pb_vd = ttk.Progressbar(fb, orient='vertical', mode='determinate')
-  pb_vD = ttk.Progressbar(fb, orient='vertical', mode='indeterminate')
+        for p in os.listdir(path):
+            abspath = os.path.join(path, p)
+            isdir = os.path.isdir(abspath)
+            oid = self.tree.insert(parent, 'end', text=p, open=False)
+            if isdir:
+                self.process_directory(oid, abspath)
 
-  pb_hd.pack(expand=True, fill=Tkinter.BOTH, side=Tkinter.TOP)
-  pb_hD.pack(expand=True, fill=Tkinter.BOTH, side=Tkinter.TOP)
-  pb_vd.pack(expand=True, fill=Tkinter.BOTH, side=Tkinter.LEFT)
-  pb_vD.pack(expand=True, fill=Tkinter.BOTH, side=Tkinter.LEFT)
-
-  pb_hd.start(50)
-  pb_hD.start(50)
-  pb_vd.start(50)
-  pb_vD.start(50)
-
-  root.mainloop()
-
-
-if __name__ == '__main__':
-    main()
-
-self.tab1 = tk.Frame(self.master)
-self.textbox1 = tk.Text(self.tab1, state=tk.DISABLED)
-self.textbox1.grid(row=0, column=0)
-
-self.tab2 = tk.Frame(self.master)
-self.textbox2 = tk.Text(self.tab2, state=tk.DISABLED)
-self.textbox2.grid(row=0, column=0)
-
-self.tab3 = tk.Frame(self.master)
-self.textbox3 = tk.Text(self.tab3, state=tk.DISABLED)
-self.textbox3.grid(row=0, column=0)
-
-self.tab3 = tk.Frame(self.master)
-self.textbox3 = tk.Text(self.tab3, state=tk.DISABLED)
-self.textbox3.grid(row=0, column=0)
-
-self.tab3 = tk.Frame(self.master)
-self.textbox3 = tk.Text(self.tab3, state=tk.DISABLED)
-self.textbox3.grid(row=0, column=0)
-
-self.tab3 = tk.Frame(self.master)
-self.textbox3 = tk.Text(self.tab3, state=tk.DISABLED)
-self.textbox3.grid(row=0, column=0)
-
-self.tab3 = tk.Frame(self.master)
-self.textbox3 = tk.Text(self.tab3, state=tk.DISABLED)
-self.textbox3.grid(row=0, column=0)
-
-self.tab3 = tk.Frame(self.master)
-self.textbox3 = tk.Text(self.tab3, state=tk.DISABLED)
-self.textbox3.grid(row=0, column=0)
-
-self.tab3 = tk.Frame(self.master)
-self.textbox3 = tk.Text(self.tab3, state=tk.DISABLED)
-self.textbox3.grid(row=0, column=0)
-
+root = tk.Tk()
+path_to_my_project = # ...
+app = App(root, path=path_to_my_project)
+app.mainloop()

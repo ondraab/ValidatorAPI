@@ -4,6 +4,7 @@ import tkMessageBox
 import residue
 
 
+
 class MAINWINDOW(residue.RESIDUE):
 
 
@@ -12,157 +13,131 @@ class MAINWINDOW(residue.RESIDUE):
         residue.RESIDUE.__init__(self)
 
         self.master = master
-        self.frame = tk.Frame(self.master)
+        self.frame = tk.Frame(self.master, borderwidth = 0)
+        #self.frame.grid(sticky = "nsew", padx=10, pady= 20)
 
-        self.mainlabel = tk.Label(self.master, text="Validator", anchor=tk.W, font="Arial 12")
-        self.mainlabel.grid(row=0, column=0)
+
+
+        self.notebook = ttk.Notebook(self.master, width = 600, height = 390)
+        self.notebook.grid(row= 0, column = 0, sticky = "nsew", columnspan = 15, padx = 5, pady = 5)
+
+
+        ##scrollbar = tk.Scrollbar(self.box)
+        #scrollbar.grid(row=0, column=1, sticky=tk.E, rowspan=2)
+
+        self.tab_names = ['Main Info', 'Models', 'Entries', 'Missing Atoms', 'Missing Rings', 'Name Mismatches', 'Chirality Mismatches', 'Foreign Atoms']
+
+
+        self.table1 = self.tab_maker(self.tab_names[0], ["PDBID", "Number of models"])
+        self.table2 = self.tab_maker(self.tab_names[1], ["Model Names"])
+        self.table3 = self.tab_maker(self.tab_names[2], ["Model Name", "State", "Main Residue"])
+        self.table4 = self.tab_maker(self.tab_names[3], ["Missing Atom"])
+        self.table5 = self.tab_maker(self.tab_names[4], ["Missing Ring"])
+        self.table6 = self.tab_maker(self.tab_names[5], ["Model", "Motif"])
+        self.table7 = self.tab_maker(self.tab_names[6], ["Model", "Motif"])
+        self.table8 = self.tab_maker(self.tab_names[7], ["Model", "Motif"])
+
+
+
+        #self.tab_maker('Foreign Atoms')
+        #self.tab_maker('Name Mismatches')
+        #self.tab_maker('Substitutions')
+        #self.tab_maker('Missing Atoms')
+        #self.tab_maker('Missing Rings')
+        #self.tab_maker('Chirality')
+
 
         self.entrylabel = tk.Label(self.master, text="Put the PDBid you want to validate", anchor=tk.W)
-        self.entrylabel.grid(row=1, column=0, sticky=tk.W)
+        self.entrylabel.grid(row=1, column=0, sticky=tk.W, padx = 5)
 
-        self.entry = tk.Entry(self.master, width=40)
-        self.entry.grid(row=2, column=0, columnspan=1, sticky=tk.W)
+        self.input_text = tk.StringVar()
+        self.input_text.trace("w", lambda name, index, mode, sv=self.input_text: self.str_length(self.input_text))
 
-        self.startbutton = tk.Button(self.master, text="Validate!", command=self.callvalidation)
-        self.startbutton.grid(row=2, column=0)
+        self.entry = tk.Entry(self.master, width=38, textvariable = self.input_text, validatecommand = lambda: self.button_enabler(self.str_length(self.input_text), self.startbutton))
+        self.entry.grid(row=2, column=0, sticky=tk.W, columnspan = 2, padx = 5, pady = 5)
+
+        self.startbutton = tk.Button(self.master, text="Validate!", command=lambda: self.callvalidation())
+        self.startbutton.grid(row=2, column=1, sticky = tk.W, padx = 25, pady = 5)
 
         self.infobutton = tk.Button(self.master, text="Help", command=self.help)
-        self.infobutton.grid(row=2, column=0, sticky=tk.E)
+        self.infobutton.grid(row=2, column=13, sticky=tk.E)
 
-        self.box = ttk.Notebook(self.master, width=650, height=300)
 
-        self.tab1 = tk.Frame(self.master)
-        self.textbox1 = tk.Text(self.tab1)
-        self.textbox1.grid(row=0, column=0)
+    def str_length(self, input_text):
+        c = self.input_text.get()[0:4]
+        self.input_text.set(c)
+        return True
 
-        self.tab2 = tk.Frame(self.master)
-        self.textbox2 = tk.Text(self.tab2)
-        self.textbox2.grid(row=0, column=0)
-
-        self.tab3 = tk.Frame(self.master)
-        self.textbox3 = tk.Text(self.tab3)
-        self.textbox3.grid(row=0, column=0)
-
-        self.tab4 = tk.Frame(self.master)
-        self.textbox4 = tk.Text(self.tab4)
-        self.textbox4.grid(row=0, column=0)
-
-        self.tab5 = tk.Frame(self.master)
-        self.textbox5 = tk.Text(self.tab5)
-        self.textbox5.grid(row=0, column=0)
-
-        self.tab6 = tk.Frame(self.master)
-        self.textbox6 = tk.Text(self.tab6)
-        self.textbox6.grid(row=0, column=0)
-
-        self.tab7 = tk.Frame(self.master)
-        self.textbox7 = tk.Text(self.tab7)
-        self.textbox7.grid(row=0, column=0)
-
-        self.tab8 = tk.Frame(self.master)
-        self.textbox8 = tk.Text(self.tab8)
-        self.textbox8.grid(row=0, column=0)
-
-        self.tab9 = tk.Frame(self.master)
-        self.textbox9 = tk.Text(self.tab9)
-        self.textbox9.grid(row=0, column=0)
-
-        self.box.add(self.tab1, text="Main Info")
-        self.box.add(self.tab2, text="Models")
-        self.box.add(self.tab3, text="Residues")
-        self.box.add(self.tab4, text="Foreign Atoms")
-        self.box.add(self.tab5, text="Name Mismatches")
-        self.box.add(self.tab6, text="Substitutions")
-        self.box.add(self.tab7, text="Missing Atoms")
-        self.box.add(self.tab8, text="Missing Rings")
-        self.box.add(self.tab9, text="Chirality")
-
-        self.box.grid(row=3)
 
     def help(self):
+        """
+        Run help window.
+        :return:
+        """
         infobox = tkMessageBox.showinfo("Help",
                                     "Validator\nType PDBid, which you want to validate and the program will give you information about all models  in given PDB")
 
+    def tab_maker(self, tab,  columnames):
+        """
+        Method, makes tabs with given name
+        :param name: name of tab
+        :param columnames: name of columns for table
+        :return:
+        """
+        self.tab = tk.Frame(self.master)
+
+        self.tree = ttk.Treeview(self.tab, columns=columnames, height = 18)
+
+        self.tree['show'] = 'headings'
+        for i in range(len(columnames)):
+            self.tree.heading(i, text=columnames[i])
+            self.tree.column(i, stretch=tk.YES, width = 120)
+
+
+        self.tree.grid(row = 0, columnspan = 4, sticky = "nsew", padx = 2, pady = 2)
+        self.treeview = self.tree
+
+
+        self.notebook.add(self.tab, text = tab)
+        return self.treeview
+
+
+
+
     def callvalidation(self):
+        """
+        Method, calls validation from RESIDUE class
+        :return:
+        """
+
         #self.entry.get()
-        residue.RESIDUE.ResParser(self, self.entry.get())
+        residue.RESIDUE.get_residue(self, self.entry.get())
 
-        self.textbox1.insert(tk.END, "PDBid: "+self.entry.get())
-        self.textbox1.configure(state=tk.DISABLED)
-        self.textbox1.update_idletasks()
+        self.table1.insert('', 'end', values = (self.entry.get(), self.motiveCount))
 
+        for i in range(self.motiveCount):
+            self.table2.insert('', 'end', values = (self.modelName[i]))
 
+        for i in range(self.entryCount):
+            self.table3.insert('', 'end', values = (self.mainRes[i][0], self.state[i], self.mainRes[i]))
 
-        self.textbox2.insert(tk.END, self.modelName)
-        self.textbox2.configure(state=tk.DISABLED)
-        self.textbox2.update_idletasks()
-
-
-        self.textbox3.insert(tk.END, self.mainRes)
-        self.textbox3.configure(state=tk.DISABLED)
-        self.textbox3.update_idletasks()
+        for key, value in self.missingAtomsDict.iteritems():
+            self.table4.insert('', 'end', values = (value))
 
 
-        self.textbox4.insert(tk.END, self.foreignAtoms)
-        self.textbox4.configure(state = tk.DISABLED)
-        self.textbox4.update_idletasks()
-
-
-
-        self.textbox5.insert(tk.END, self.nameMismatches)
-        self.textbox5.configure(state=tk.DISABLED)
-        self.textbox5.update_idletasks()
-
-
-
-        self.textbox6.insert(tk.END, self.substitutions)
-        self.textbox6.configure(state=tk.DISABLED)
-        self.textbox6.update_idletasks()
-
-
-
-        self.textbox7.insert(tk.END, self.missingAtoms)
-        self.textbox7.configure(state=tk.DISABLED)
-        self.textbox7.update_idletasks()
-
-
-
-        self.textbox8.insert(tk.END, self.missingRings)
-        self.textbox8.configure(state=tk.DISABLED)
-        self.textbox8.update_idletasks()
-
-
-
-
-        self.textbox9.insert(tk.END, self.chiralityMismatches)
-        self.textbox9.configure(state=tk.DISABLED)
-        self.textbox9.update_idletasks()
-
-
-
+        for key, value in self.foreignAtoms.iteritems():
+            self.table8.insert('', 'end', values = (key , value))
 
 
 
 def main():
     root = tk.Tk()
     root.wm_title("Validator")
-    root.resizable(width=False, height=False)
-    root.geometry("660x400")
+    #root.resizable(width=False, height=False)
+    root.geometry("640x480")
     app = MAINWINDOW(root)
     root.mainloop()
 
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
-
-
-
-
-
-

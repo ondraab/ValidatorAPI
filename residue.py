@@ -1,58 +1,34 @@
-import JSON_manager
-import tkMessageBox
-
-
-
-class RESIDUE():
+class Residue():
     ##Class, iterating gets specific information of given PDB#
 
-
-
     def __init__(self):
-        self.mainRes = []
-        self.modelNames = {}
+        self.main_res = []
+        self.model_names_dict = {}
 
 
-        self.tempForeignAtoms = {}
-        self.foreignAtoms = {}
+        self.temp_foreign_atoms = {}
+        self.foreign_atoms = {}
 
         self.substitutions = {}
-        self.nameMismatches = {}
+        self.name_mismatches = {}
 
-        self.missingAtomsList = []
-        self.missingAtomsDict = {}
+        self.missing_atoms_list = []
+        self.missing_atoms_dict = {}
 
-        self.missingRings = []
-        self.chiralityMismatches = {}
-        self.entryName = []
-        self.modelName = []
-        self.motiveCount = 0
-        self.stateBool = True
+        self.missing_rings = []
+        self.chirality_mismatches = {}
+        self.entry_name = []
+        self.model_name = []
+        self.motive_count = 0
+        self.state_bool = True
         self.state = []
-        self.entryCount = 0
+        self.entry_count = 0
 
 
 
-    def get_model(self, pdbid):
+    def get_property(self, property, property_dict, model_count):
         """
-        Method iterating over Models, calls GETSTRUCTURE.downloadEntry method
-        :param pdbid: valuated PDBid
-        :return: individual model
-        """
-
-        entry = []
-        download = JSON_manager.JSON_MANAGER()
-
-        ##Main iteration cycle
-        for index, model in enumerate(download.download_entry(pdbid)):
-            entry.append(model)
-
-
-        return entry
-
-    def get_property(self, property, property_dict, modelcount):
-        """
-
+        Compare given property dict with original model names dict and returns dict with original model name
         :param property:
         :param property_dict:
         :param modelcount:
@@ -60,92 +36,57 @@ class RESIDUE():
         """
 
         for key in property:
-            property_dict = modelcount["ModelNames"][key]
+            property_dict = model_count["ModelNames"][key]
 
         return property_dict
 
-    def get_residue(self, pdbid):
+    def get_residue(self, protein_model):
         """
-        Iterating over "Entries" in individual models.
-        :param pdbid: valuated PDB
+        Iterating over "Entries" in individual model.
+        :param protein_model: individual protein model
         :return:
         """
-        model = self.get_model(pdbid)
-        entries = {}
-        entries["ModelName"] = model
 
-        for modelCount, modelKey in enumerate(model):
-            # print  res.ModelParser()[idx]["Entries"]
-
-            self.motiveCount += 1
-            self.modelName.append(model[modelCount]["ModelName"])
-            self.modelNames =model[modelCount]["ModelNames"]
-
-            #Convert str key to int key
-            self.modelNames = {int(k): v for k, v in self.modelNames.items()}
-
-            for entryCount, entryKey in enumerate(model[modelCount]["Entries"]):
-                self.entryCount += 1
-                currentEntry = model[modelCount]["Entries"][entryCount]
-
-                self.entryName.append(currentEntry["ModelName"])
-
-                if currentEntry["State"] == "Degenerate":
-                    self.stateBool = False
-                    tkMessageBox.showwarning("Warning", "One or more model degenerated!")
-                    break
-
-                else:
-                    self.stateBool = True
-
-                self.state.append(currentEntry["State"])
-
-                self.mainRes.append(currentEntry["MainResidue"].split(" ", 3))
+        self.entry_name.append(protein_model["ModelName"])
 
 
-                self.get_property(currentEntry["Substitutions"], self.substitutions, model[modelCount])
+        if protein_model["State"] == "Degenerate":
+            self.state_bool = False
 
-                self.get_property(currentEntry["NameMismatches"], self.nameMismatches, model[modelCount])
+
+        else:
+            self.state_bool = True
+
+        self.state.append(protein_model["State"])
+
+        self.main_res.append(protein_model["MainResidue"].split(" ", 3))
+
+
+        #self.get_property(["Substitutions"], self.substitutions, protein_model[model_count])
+
+        #self.get_property(current_entry["NameMismatches"], self.name_mismatches, protein_model[model_count])
 
 
 
-                for i in currentEntry["MissingAtoms"]:
-                    if i not in self.missingAtomsList:
-                        self.missingAtomsList.append(i)
-                        self.missingAtomsDict[i] = self.modelNames[i]
+        #for i in protein_model["MissingAtoms"]:
+            #if i not in self.missing_atoms_list:
+                #self.missing_atoms_list.append(i)
+                #self.missing_atoms_dict[i] = self.model_names_dict[i]
 
 
 
-                self.tempForeignAtoms = currentEntry["ForeignAtoms"]
+        self.temp_foreign_atoms = protein_model["ForeignAtoms"]
 
 
-                ##Add new key to a dict of foreign atoms##
-                for key, value in self.tempForeignAtoms.iteritems():
-                    self.foreignAtoms[self.get_property(currentEntry["ForeignAtoms"], self.tempForeignAtoms, model[modelCount])] = self.tempForeignAtoms[key]
+        ##Add new key to a dict of foreign atoms##
+        #for key, value in self.temp_foreign_atoms.iteritems():
+            #self.foreign_atoms[self.get_property(protein_model["ForeignAtoms"], self.temp_foreign_atoms, protein_model[model_count])] = self.temp_foreign_atoms[key]
 
 
 
 
 
-                self.ChiralityMismatches = currentEntry["ChiralityMismatches"]
-                #self.missingAtoms.append(currentEntry["MissingAtoms"])
-                self.missingRings = currentEntry["MissingRings"]
-                #print self.missingAtoms
-
-    def get_res(self, pdbid, property, nameOfProperty):
-
-
-        model = self.get_model(pdbid)
-
-        for modelCount, modelKey in enumerate(model):
-            self.motiveCount +=1
-            self.modelName = model[modelCount]["ModelName"]
-
-            for entryCount, entryKey in enumerate(model[modelCount]["Entries"]):
-                self.entryCount += 1
-
-
-                currentEntry = model[modelCount]["Entries"][entryCount]
-
-                property = currentEntry[nameOfProperty]
-                return property
+        self.chirality_mismatches = protein_model["ChiralityMismatches"]
+        #self.missingAtoms.append(currentEntry["MissingAtoms"])
+        self.missing_rings = protein_model["MissingRings"]
+        #print self.missingAtoms
